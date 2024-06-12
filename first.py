@@ -1,0 +1,1 @@
+print("Clara Yau, 25, trying to learn a new skill outside my comfort zone.")
