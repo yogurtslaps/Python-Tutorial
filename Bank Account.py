@@ -79,15 +79,5 @@ def main():
     # Get transaction history
     print(person1.get_transaction_history())
 
-    # if input_value == 1:
-    # BankAccount.get_balance()
-    # elif input_value == 2:
-    # BankAccount.deposit()
-    # elif input_value == 3:
-    # BankAccount.withdraw()
-    # else:
-    # print("Invalid. Please Enter a valid input.")
-
-
 if __name__ == "__main__":
     main()
