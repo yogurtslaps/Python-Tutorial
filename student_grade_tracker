@@ -1,0 +1,113 @@
+import os
+from datetime import datetime
+from pathlib import Path
+
+
+VERSION = "0.1"
+tempPath = Path(__file__).parent / Path("temp/grades.txt")
+
+
+def init():
+    try:
+        os.makedirs(tempPath.parent, exist_ok=True) #Create temp directory if not exist
+    except OSError:
+        print(f'Temp folder creation failed, please check disk write permissions. Program will exit. ')
+        return 1
+
+def writefile(content, timestamp = False):
+    f = open(tempPath, "a")
+    try:
+        if timestamp:
+            f.write(datetime.isoformat(datetime.now())+"\n")
+        f.write(content)
+    except IOError:
+        print(f"Write failed on {tempPath}, program will exit.")
+    f.close()
+
+def viewfile(disp = False, clr = False):
+    if clr:
+        os.system('cls') #Clear Screen for clearer entry display.
+    try:
+        f = open(tempPath, "r")
+
+    except FileNotFoundError:
+        print(f"Diary File {tempPath} not found, creating...")
+        writefile('', False)
+        viewfile() #Recurses viewfile to retry
+        return
+
+    lines = f.readlines()
+    if disp:
+        [print(line, end="") for line in lines]
+
+    f.close()
+    return lines
+
+def get_avg():
+    lines = viewfile(False)
+    accum = 0
+    for line in lines:
+        try:
+            accum += float(line.split(",")[1])
+        except ValueError:
+            print(f'Invalid file format in line \n{line}\nProgram will exit.')
+    return (accum/len(lines))
+
+
+def delete_diary():
+    os.remove(tempPath)
+
+def main():
+    print(f"=== Grades Manager V{VERSION} === \n©Clara Yau, June 12 2024\nAll Rights Reserved")
+    init()
+    input_buffer = ''
+    while (True):
+        input_buffer = input(">>>")
+        input_buffer = input_buffer.split()
+        
+        try:
+            cmd = input_buffer[0]
+        except IndexError:
+            continue
+
+        if cmd == "help":
+            print("Help String here, details all possible operations")
+        
+        elif cmd == "add":
+            if len(input_buffer) != 3:
+                print("Insufficient arguments, Add takes 2 arguments, Subject and Score.")
+                continue
+            subject = str(input_buffer[1])
+            try:
+                grade = float(input_buffer[2])
+            except TypeError:
+                print("Invalid grade type, must be int or float.")
+                continue
+            
+            if grade not in range(0,100):
+                print("Invalid grade, must be between 0-100!")
+
+            writefile(f'{subject},{grade}\n');
+        
+        elif cmd == "view":
+            viewfile(disp=True, clr=True)
+
+        elif cmd == "avg":
+            print(f'Average score is {get_avg()}.')
+
+        elif cmd == "delete":
+            buffer = input(f"Are you sure you want to delete {tempPath.name}? [Y/N]")
+            if buffer == "Y":
+                delete_diary()
+            else:
+                continue
+
+        elif cmd == "quit":
+            break
+
+        else:
+            print(f"Command {input_buffer[0]} is invalid. Retry.")
+            
+
+if __name__ == "__main__":
+    main()
